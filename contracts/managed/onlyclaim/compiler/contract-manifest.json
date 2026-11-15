@@ -1,0 +1,79 @@
+{
+  "manifest-version": "1",
+  "compiler-version": "0.36.0",
+  "compiler-commit": "b5d9e4dfc532fe47011c4f6296e254f4853eb469",
+  "language-version": "0.28.0",
+  "runtime-version": "0.21.0",
+  "compiler": {
+    "type": "directory",
+    "contract-info.json": {
+      "type": "file",
+      "size": 4323,
+      "hash": "7119925c239e37ba7d6b8c149d4e0cd31f62440ede3e4282fe8152df299d7819"
+    }
+  },
+  "contract": {
+    "type": "directory",
+    "index.d.ts": {
+      "type": "file",
+      "size": 3546,
+      "hash": "268cde0d4aa68e2d6d6fc4306cb3c4e8fb2490cc15a2383f83f64e06b00ae710"
+    },
+    "index.js": {
+      "type": "file",
+      "size": 62757,
+      "hash": "fca3ea0b3497efa3790422f8f990f74702b2decb46238a369f7527f05457d6c1"
+    },
+    "index.js.map": {
+      "type": "file",
+      "size": 2760,
+      "hash": "953edfcfa06a9288c4de8ac7292d387f98d5d9165993f81ce200cfa94ffca52b"
+    }
+  },
+  "zkir": {
+    "type": "directory",
+    "issueClaim.bzkir": {
+      "type": "file",
+      "size": 2454,
+      "hash": "b0356e912f7a6038e0d2d8780954dfe07351cb54a650d9f9959f4db07113e5a5"
+    },
+    "issueClaim.zkir": {
+      "type": "file",
+      "size": 8389,
+      "hash": "a7496e7d304a380a1cc74b864ce4466f462521d679a1c40eb296cef68cc469bd"
+    },
+    "registerCommitment.bzkir": {
+      "type": "file",
+      "size": 593,
+      "hash": "e9843eecd6c664bb26051b40c2ac97cb365ceb68caa634c70d54a56e4202cd96"
+    },
+    "registerCommitment.zkir": {
+      "type": "file",
+      "size": 2458,
+      "hash": "5eed225b919d781d0aceef5acc161c8a007482369c49fc4dca3bb8af0455298e"
+    }
+  },
+  "keys": {
+    "type": "directory",
+    "issueClaim.prover": {
+      "type": "file",
+      "size": 11279014,
+      "hash": "53c661ee1c66ea469dac6d6b4f03d098c0659046fcc215bea739bc29dc9fa2cd"
+    },
+    "issueClaim.verifier": {
+      "type": "file",
+      "size": 2121,
+      "hash": "7d1c51846e561779b62e9b79eebe590909ad0f0be2e1ac0a2dbf05174975a9e4"
+    },
+    "registerCommitment.prover": {
+      "type": "file",
+      "size": 11277153,
+      "hash": "c6255d0b25c4170b7ca2459fceb66b1dfa62d1f42028cab4b9f455f1dfaac440"
+    },
+    "registerCommitment.verifier": {
+      "type": "file",
+      "size": 2121,
+      "hash": "7ff69979b493ff05a30c7a287817ebf3262b6be528f852958def8b3b89a90549"
+    }
+  }
+}

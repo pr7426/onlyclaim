@@ -1,0 +1,122 @@
+pragma language_version 0.28;
+
+import CompactStandardLibrary;
+
+// Need-to-know grants for an AI agent.
+// The vault (birth year, country code, graduation year) is witness data.
+// The ledger stores a commitment, a replay nullifier, and the yes/no grant.
+// It never stores the raw attributes.
+
+export enum ClaimKind {
+  Adult,
+  CountryAllowed,
+  Graduated
+}
+
+// Private attributes. Exporting the struct only generates TypeScript bindings.
+// Nothing writes a Vault to the ledger.
+export struct Vault {
+  birthYear: Uint<16>;
+  countryCode: Uint<16>;
+  graduationYear: Uint<16>;
+}
+
+// The only per-claim record that reaches the public ledger.
+export struct Grant {
+  claimKind: ClaimKind;
+  satisfied: Boolean;
+  issuedAt: Uint<64>;
+  commitment: Bytes<32>;
+  agentTag: Bytes<32>;
+}
+
+// Commitments the holder has registered. The preimage stays on the device.
+export ledger registered: Set<Bytes<32>>;
+
+// One nullifier per (commitment, claim kind, agent), so the same answer
+// cannot be issued twice to the same agent.
+export ledger spent: Set<Bytes<32>>;
+
+export ledger grantCount: Counter;
+
+// grant id -> public grant. Ids start at 0.
+export ledger grants: Map<Uint<64>, Grant>;
+
+// The holder's attributes and the opening for their commitment.
+// Both run on the holder's machine. The circuit treats them as untrusted
+// inputs and checks them against the registered commitment.
+witness vault(): Vault;
+witness vaultSalt(): Bytes<32>;
+
+circuit commitmentOf(attrs: Vault, salt: Bytes<32>): Bytes<32> {
+  return persistentCommit<Vault>(attrs, salt);
+}
+
+// Domain-separated so a commitment cannot be replayed as a nullifier.
+circuit nullifierOf(commitment: Bytes<32>, kind: ClaimKind, agentTag: Bytes<32>): Bytes<32> {
+  return persistentHash<[Bytes<22>, Bytes<32>, ClaimKind, Bytes<32>]>([
+    "onlyclaim:nullifier:v1",
+    commitment,
+    kind,
+    agentTag
+  ]);
+}
+
+// Bind the vault to a public commitment. Raw attributes are not disclosed:
+// persistentCommit hides its preimage when the salt is secret.
+export circuit registerCommitment(): [] {
+  const commitment = commitmentOf(vault(), vaultSalt());
+  assert(!registered.member(commitment), "Commitment already registered");
+  registered.insert(commitment);
+}
+
+// Prove one claim about the registered vault and record only the yes/no.
+// countryA/B/C are the agent's public allowlist (0 means unused), not the
+// holder's country. referenceYear is the year the question is about.
+export circuit issueClaim(
+  kind: ClaimKind,
+  referenceYear: Uint<16>,
+  countryA: Uint<16>,
+  countryB: Uint<16>,
+  countryC: Uint<16>,
+  issuedAt: Uint<64>,
+  agentTag: Bytes<32>
+): Uint<64> {
+  assert(referenceYear >= 18, "Reference year is too small");
+
+  const attrs = vault();
+  const commitment = commitmentOf(attrs, vaultSalt());
+  assert(registered.member(commitment), "Commitment is not registered");
+
+  const kindPublic = disclose(kind);
+  const agentPublic = disclose(agentTag);
+  const nul = nullifierOf(commitment, kindPublic, agentPublic);
+  assert(!spent.member(nul), "Claim already issued to this agent");
+
+  // Predicates stay inside the proof. Only the selected boolean is disclosed.
+  const adult = referenceYear - 18 >= attrs.birthYear;
+  const inCountry =
+    (countryA != 0 && attrs.countryCode == countryA) ||
+    (countryB != 0 && attrs.countryCode == countryB) ||
+    (countryC != 0 && attrs.countryCode == countryC);
+  const graduated = attrs.graduationYear > 0 && attrs.graduationYear <= referenceYear;
+
+  const satisfied =
+    (kindPublic == ClaimKind.Adult && adult) ||
+    (kindPublic == ClaimKind.CountryAllowed && inCountry) ||
+    (kindPublic == ClaimKind.Graduated && graduated);
+
+  const grantId = grantCount.read();
+  const record = Grant {
+    claimKind: kindPublic,
+    satisfied: disclose(satisfied),
+    issuedAt: disclose(issuedAt),
+    commitment: commitment,
+    agentTag: agentPublic,
+  };
+
+  grants.insert(grantId, record);
+  spent.insert(nul);
+  grantCount.increment(1);
+  return grantId;
+}

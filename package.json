@@ -1,0 +1,42 @@
+{
+  "name": "onlyclaim",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "22.x || 24.x"
+  },
+  "packageManager": "yarn@1.22.22",
+  "scripts": {
+    "dev": "next dev --hostname 0.0.0.0 --port 4317",
+    "demo": "next dev --hostname 0.0.0.0 --port 4317",
+    "build": "next build",
+    "start": "next start --hostname 0.0.0.0 --port 4317",
+    "lint": "eslint",
+    "compile": "compact compile contracts/onlyclaim.compact contracts/managed/onlyclaim",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.9.0",
+    "@midnight-ntwrk/compact-runtime": "0.21.0",
+    "class-variance-authority": "^0.7.1",
+    "cn": "^0.5.2",
+    "lucide-react": "^1.73.0",
+    "next": "15.5.29",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "shadcn": "^4.23.0",
+    "tw-animate-css": "^1.4.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.29",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "4.0.8"
+  }
+}
